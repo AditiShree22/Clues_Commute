@@ -5,30 +5,38 @@ $db = new DB_Functions();
 $response = array("error" => FALSE);
  
 // json response array 
-if (isset($_GET['employee_id']) && isset($_GET['requestee_id'])) {
+$jsonArr=json_decode(file_get_contents('php://input'),true);
+
+if (isset($jsonArr['employee_id']) && isset($jsonArr['requestee_id'])) {
  
     // receiving the params
-    $employee_id= $_GET['employee_id'];
-    $requestee_id = $_GET['requestee_id'];
+    $employee_id= $jsonArr['employee_id'];
+    $requestee_id = $jsonArr['requestee_id'];
 
     $result = $db->undoSentRequest($employee_id, $requestee_id);
-    //print_r($result);
+    
  
     if($result){
 
-       $response["response"] = TRUE; 
+        $response["status"] = "Success";
+        $response["code"] = "200";
+
+        $response["message"] = "Undo successful !"; 
+        $response["error"] = (object)array(); 
        echo json_encode($response);
     }
     else{
-        $response["error"] = TRUE;
-            $response["error_msg"] = "Could not undo the request";
+            $response["status"] = "Failed";
+            $response["error"]["error_code"] = "304" ;
+            $response["error"]["error_msg"] = "Could not undo the request !";
             echo json_encode($response);
     }
   }
 
     else{
-        $response["error"] = TRUE;
-    $response["error_msg"] = "Required parameter (employee_id or requestee_id) is missing!";
+    $response["status"] = "Failed";
+    $response["error"]["error_code"] = "400" ;    
+    $response["error"]["error_msg"] = "Required parameter (employee_id or requestee_id) is missing!";
     echo json_encode($response);
     }
 ?>
