@@ -21,7 +21,7 @@ if (isset($source1) && isset($destination1)) {
         
         //CALLING MAPS API FOR GEOCODE
     $source_points = $db->getLatLong($source1);
-    $dest_points = $db->getLatLong($destination1);
+    //$dest_points = $db->getLatLong($destination1);
 
           $latFrom =  $source_points['results'][0]['geometry']['location']['lat'];
            $longFrom = $source_points['results'][0]['geometry']['location']['lng'];
@@ -29,29 +29,31 @@ if (isset($source1) && isset($destination1)) {
             // $longTo = $dest_points['results'][0]['geometry']['location']['lng'];
 
     $active_rides = $db->getActiveRides();
-    //print_r($active_rides); die(); 
+    
     for ($i=0; $i<count($active_rides); $i++) {
         
         $intermediate_points["intermediate_points"][$i] = $active_rides[$i][5];
-     
-            for ($j=0; $j < count($intermediate_points["intermediate_points"]); $j++) { 
-
-                $coordinate = json_decode($intermediate_points["intermediate_points"][$j],true);
-                // print_r($coordinate); die(); 
+       
+           // for ($j=0; $j < count($intermediate_points["intermediate_points"]); $j++) { 
+        $coordinate = json_decode($intermediate_points["intermediate_points"][$i],true);
+                   
                      for ($k=0; $k < count($coordinate); $k++) { 
                         $latTo = $coordinate[$k]['lat'];
                         $longTo = $coordinate[$k]['lng'];
                         
- $distance = $db->haversineGreatCircleDistance($latFrom, $longFrom, $latTo, $longTo, $earthRadius);      //print_r($distance); die(); 
+       $distance = $db->haversineGreatCircleDistance($latFrom, $longFrom, $latTo, $longTo, $earthRadius);      //print_r($distance);echo "\n"; die();
+                   
                              if ($distance <= 5.000000000000) {
                             // $driver[] = array($active_rides[$i][1]." ".$active_rides[$i][4]); 
-                            //print_r($driver); die();
-  $drivers[] = array("Driver_id"=>$active_rides[$i][1],"Ride_name"=>$active_rides[$i][4]);
+                           
+       $drivers[] = array("Driver_id"=>$active_rides[$i][1],"Ride_name"=>$active_rides[$i][4]);
+                                     
                                      break;
                               }
-                         break;
+
+                        // break;
                      }
-             }
+            // }
      }
          
    //print_r($intermediate_points["intermediate_points"][0]);
