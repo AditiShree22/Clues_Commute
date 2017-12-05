@@ -13,7 +13,8 @@ if (isset($_GET['employee_id']) && !empty($_GET['employee_id']) && isset($_GET['
  
     // get the user by email and password
     $user = $db->getUserByEmployeeIdAndPassword($employee_id, $password);
- 
+    $status = $db->logIn($employee_id);
+    
     if ($user != false) {
         // use is found
         $response["error"] = (object)array();
