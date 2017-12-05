@@ -79,13 +79,26 @@ class DB_Functions {
             // check for password equality
             if ($encrypted_password == $hash) {
                 // user authentication details are correct
+
                 return $user;
             }
         } else {
             return NULL;
         }
     }
- 
+ public function logIn($employee_id)
+    {
+        $stmt = $this->conn->prepare("UPDATE users SET status = 1 WHERE employee_id = ?");
+        $stmt->bind_param("s", $employee_id);
+      if ($stmt->execute()) 
+      {
+       $stmt->store_result();
+         $stmt->close();
+         return true;
+         }
+         else
+         return false;
+    }
     /**
      * Check user is existed or not (Used in Registration)
      */
@@ -228,7 +241,7 @@ class DB_Functions {
                               
     public function storeRequest($driver_id, $passenger_id, $sent_by){
 
-        $stmt = $this->conn->prepare("INSERT INTO request (driver_id, passenger_id, sent_by, created_at) VALUES(?, ?, ?, NOW())");
+        $stmt = $this->conn->prepare("INSERT INTO request (driver_id, passenger_id, sent_by, created_at,message) VALUES(?, ?, ?, NOW(), 'Booking a ride')");
         $stmt->bind_param("sss", $driver_id, $passenger_id, $sent_by);
         $result = $stmt->execute();
         $stmt->close();
@@ -450,10 +463,10 @@ class DB_Functions {
         if($routeFetched){
            $flag = 0;
            $passenger_list = explode(",", $routeFetched['route']);
-           //print_r($passenger_list);
+          // print_r($passenger_list);die();
 
            for($i = 0; $i<count($passenger_list); $i++){
-            //print_r($passenger_list[$i]);
+           // print_r($passenger_list[$i]);die();
             $stmt1 = $this->conn->prepare("SELECT status FROM request WHERE passenger_id = ?");
             $stmt1->bind_param("s", $passenger_list[$i]);
 
@@ -465,7 +478,7 @@ class DB_Functions {
              
                 if($status['status']==1 || $passenger_list[$i]=='shopclues'){
                     $flag = 1;
-                    //print_r($passenger_list);
+                    //print_r($passenger_list);die();
                     return $passenger_list[$i];
                 }
             }
@@ -776,12 +789,12 @@ class DB_Functions {
         if($stmt->execute()){
             $result = $stmt->get_result()->fetch_all();
             $stmt->close();
-            //print_r($result);
+            //print_r($result);die();
 
             foreach ($result as $value) {
                 // print_r($value[1]);
                  $route_array = explode(',', $value[1]);
-                //print_r($route_array);
+                //print_r($route_array);die();
                  foreach ($route_array as $pass_id) {
                     //print_r($pass_id);
                      if($pass_id === $passenger_id){
@@ -942,5 +955,18 @@ public function getIntermediatePoints($origin, $destination)
  
   return $angle * $earthRadius;
 }
+public function logOut($employee_id/*, $status*/)
+    {
+        $stmt = $this->conn->prepare("UPDATE users SET status = 0 WHERE employee_id = ?");
+        $stmt->bind_param("s",/* $status,*/ $employee_id);
+      if ($stmt->execute()) 
+      {
+       $stmt->store_result();
+         $stmt->close();
+         return true;
+         }
+         else
+         return false;
+    }
    }  
 ?>
