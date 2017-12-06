@@ -72,7 +72,7 @@ if (isset($_GET['employee_id']) && !empty($_GET['employee_id'])) {
      
      $string_route .= ",".$driver_details['destination'];
     //print_r($string_route);die();
-      //SAVING OPTIMIZED ROUTE (EMPLOYEE IDS)
+      //SAVING OPTIMIZED ROUTE (stoppage points)
 
       // use geocode API to convert origin and destination of driver into lat lng for 
      $LatLng = $db->getLatLong($str_origin);
