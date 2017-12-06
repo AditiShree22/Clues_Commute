@@ -21,14 +21,14 @@ if (isset($_GET['employee_id']) && !empty($_GET['employee_id'])) {
     $destination = "destination=".$driver_details['destination'];
     $str_origin = str_replace(' ', '', $source);
     $str_destination = str_replace(' ', '', $destination);
-
+    //DETAILS OF PASSENGERS
     $result = $db->acceptedRequests($employee_id);
-    // fetch passenger_id , pick up and drop off location from request table 
+   
     
      if ($result){
         for ($i=0; $i<count($result); $i++)
         {
-            //DETAILS OF PASSENGERS
+            // fetch passenger_id , pick up and drop off location from request table 
             $array = $db->fetchFromRequest($employee_id, $result[$i]['employee_id']);
             
             $response['response'][$i] = array("employee_id"=>$result[$i]['employee_id'],"pick_up_location"=>$array['pick_up_location'], "drop_off_location"=>$array['drop_off_location']);
@@ -69,20 +69,20 @@ if (isset($_GET['employee_id']) && !empty($_GET['employee_id'])) {
     }
      
      $string_route = implode(",", $string_route);
-     print_r($string_route);die();
+     
      $string_route .= ",".$driver_details['destination'];
-    
+    //print_r($string_route);die();
       //SAVING OPTIMIZED ROUTE (EMPLOYEE IDS)
 
       // use geocode API to convert origin and destination of driver into lat lng for 
      $LatLng = $db->getLatLong($str_origin);
 
-          $latFrom =  $source_points['results'][0]['geometry']['location']['lat'];
-           $longFrom = $source_points['results'][0]['geometry']['location']['lng'];
-           
+         $latFrom =  $LatLng['results'][0]['geometry']['location']['lat'];
+         $longFrom = $LatLng['results'][0]['geometry']['location']['lng'];
+         
 
      $success = $db->storeInRouteTable($employee_id, $string_route, $latFrom, $longFrom);
-
+     
 
      if($success){
    
@@ -97,9 +97,10 @@ if (isset($_GET['employee_id']) && !empty($_GET['employee_id'])) {
         $response["error"]["error_code"] = "";
         $response["error"]["error_msg"] = "Data did not store in Routes table";
         $response["user"] = (object)array();
+        echo json_encode($response);
     }
         
-        echo json_encode($response);
+        
     }
     else{
     	    $response["status"] = "Failed";
