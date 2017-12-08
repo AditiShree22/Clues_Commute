@@ -12,13 +12,17 @@ if (isset($_GET['employee_id']) && !empty($_GET['employee_id'])) {
     $passenger_id= $_GET['employee_id'];
 
     $val = $db->fetchDriverFromRequest($passenger_id);
+    
+    $pick_up = str_replace(' ', '', $val['pick_up_location']);
+    $drop_off = str_replace(' ', '', $val['drop_off_location']);
 
     $result = $db->fetchFromRoute($val['driver_id']);
 
-    $passenger_data_origin = $db->getLatLong($val['pick_up_location']);
-    $passenger_data_destination = $db->getLatLong($val['drop_off_location']);
+    $passenger_data_origin = $db->getLatLong($pick_up);
+   
+    $passenger_data_destination = $db->getLatLong($drop_off);
 
-    if($result && $val && $passenger_data_origin && $passenger_data_destination){
+    if($result && $val){
 
         $response["error"] = (object)array();
         $response["status"] = "Success";
@@ -41,6 +45,7 @@ if (isset($_GET['employee_id']) && !empty($_GET['employee_id'])) {
         $response["user"] = (object)array();
     echo json_encode($response);
     }
+}
     else {
     	$response["status"] = "Failed";
         $response["error"]["error_code"] = "400";
