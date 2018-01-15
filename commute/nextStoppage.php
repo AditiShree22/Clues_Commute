@@ -12,12 +12,14 @@ if (isset($_GET['employee_id']) && !empty($_GET['employee_id'])) {
     $employee_id= $_GET['employee_id'];
     //Fetching one stop according to waypoint sequence in DB
     $address = $db->fetchOneStopFromRoute($employee_id);
- 
+   
     if($address){
         // Converting passenger address picked from route to lat lng
     	$LatLng = $db->getLatLong($address);
+
         $latTo =  $LatLng['results'][0]['geometry']['location']['lat'];
         $longTo = $LatLng['results'][0]['geometry']['location']['lng'];
+
         //FETCHING DRIVER LAT LONG FROM ROUTES
     	$driver = $db->fetchFromRoute($employee_id);
 
@@ -32,15 +34,19 @@ if (isset($_GET['employee_id']) && !empty($_GET['employee_id'])) {
         $response['location_detail']['driver_longitude'] = $driver['d_longitude'];
    
         echo(json_encode($response));
-
-    	$db->updateDriverLatLong($employee_id, $latTo, $longTo);
-    	}
+        $db->updateDriverLatLong($employee_id, $latTo, $longTo);
+        if (isset($latTo) && isset($longTo) && isset($driver['d_latitude']) && isset($driver['d_longitude'])) {
+             
+             $db->deleteStopFromRoute($driver,$employee_id);  
+        }  
+      //  else echo "Re-hit the API in case of null data";
+    }
 
     else{
 
     	    $response["status"] = "Failed";
-            $response["error"]["error_code"] = " ";
-            $response["error"]["error_msg"] = "No Next Passenger";
+            $response["error"]["error_code"] = "204";
+            $response["error"]["error_msg"] = "No Content : No Next Passenger";
             $response["user"] = (object)array();
             echo json_encode($response);
     }
@@ -50,7 +56,7 @@ if (isset($_GET['employee_id']) && !empty($_GET['employee_id'])) {
         
           $response["status"] = "Failed";
 	      $response["error"]["error_code"] = "400";
-	      $response["error"]["error_msg"] = "Required parameter (employee_id) is missing!";
+	      $response["error"]["error_msg"] = "Bad Request : Required parameter (employee_id) is missing!";
 	      $response["user"] = (object)array();
 	      echo json_encode($response);
 	    }
