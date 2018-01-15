@@ -88,7 +88,7 @@ class DB_Functions {
     }
  public function logIn($employee_id)
     {
-        $stmt = $this->conn->prepare("UPDATE users SET status = 1 WHERE employee_id = ?");
+        $stmt = $this->conn->prepare("UPDATE users SET status = 1 WHERE employee_id = ? LIMIT 1");
         $stmt->bind_param("s", $employee_id);
       if ($stmt->execute()) 
       {
@@ -164,7 +164,7 @@ class DB_Functions {
     if ($stmt->num_rows > 0) {
             
         // user existed 
-        $stmt = $this->conn->prepare("UPDATE users SET active = '1' WHERE employee_id = ?");
+        $stmt = $this->conn->prepare("UPDATE users SET active = '1' WHERE employee_id = ? LIMIT 1");
         $stmt->bind_param("s", $employee_id);
         $result = $stmt->execute();
         $stmt->close();   
@@ -239,10 +239,10 @@ class DB_Functions {
             return false;
     }
                               
-    public function storeRequest($driver_id, $passenger_id, $sent_by){
+    public function storeRequest($driver_id, $passenger_id, $sent_by, $pick_up_location, $drop_off_location){
 
-        $stmt = $this->conn->prepare("INSERT INTO request (driver_id, passenger_id, sent_by, created_at,message) VALUES(?, ?, ?, NOW(), 'Booking a ride')");
-        $stmt->bind_param("sss", $driver_id, $passenger_id, $sent_by);
+        $stmt = $this->conn->prepare("INSERT INTO request (driver_id, passenger_id, sent_by, pick_up_location, drop_off_location, created_at, message) VALUES(?, ?, ?, ?, ?, NOW(), 'Booking a ride')");
+        $stmt->bind_param("sssss", $driver_id, $passenger_id, $sent_by, $pick_up_location, $drop_off_location);
         $result = $stmt->execute();
         $stmt->close();
  
@@ -421,7 +421,7 @@ class DB_Functions {
     }
 
     public function storeInRouteTable($driver_id, $string_route, $d_latitude, $d_longitude)
-    {
+    {    
         //CHECKING IF ENTRY ALREADY EXISTS
         $stmt = $this->conn->prepare("SELECT * from route WHERE driver_id = ?");
         $stmt->bind_param("s", $driver_id);
@@ -430,7 +430,7 @@ class DB_Functions {
  
         if ($stmt->num_rows > 0) {
             // user existed 
-            $stmt = $this->conn->prepare("UPDATE route SET route = ? WHERE driver_id = ?");
+            $stmt = $this->conn->prepare("UPDATE route SET route = ? WHERE driver_id = ? LIMIT 1");
             $stmt->bind_param("ss", $string_route, $driver_id);
 
         } else {
@@ -463,7 +463,7 @@ class DB_Functions {
         if($routeFetched){
            $flag = 0;
            $passenger_list = explode(",", $routeFetched['route']);
-          // print_r($passenger_list);die();
+           //print_r($passenger_list);die();
 
            for($i = 0; $i<count($passenger_list); $i++){
            // print_r($passenger_list[$i]);die();
@@ -498,7 +498,7 @@ class DB_Functions {
 
     public function acceptRequest($driver_id,$passenger_id) {
     
-    $stmt = $this->conn->prepare("UPDATE request SET status = 1 WHERE ( passenger_id = ? OR driver_id = ? ) OR ( driver_id = ? OR passenger_id = ?)");
+    $stmt = $this->conn->prepare("UPDATE request SET status = 1 WHERE ( passenger_id = ? OR driver_id = ? ) OR ( driver_id = ? OR passenger_id = ?) LIMIT 1");
         $stmt->bind_param("ssss", $employee_id, $requestee_id, $employee_id, $requestee_id);
         if ($stmt->execute()) 
         {
@@ -513,7 +513,7 @@ class DB_Functions {
  
     public function cancelRequest($sender_id,$receiver_id) {
     
-    $stmt = $this->conn->prepare("UPDATE request SET status = -1 WHERE driver_id = ? AND passenger_id = ?");
+    $stmt = $this->conn->prepare("UPDATE request SET status = -1 WHERE driver_id = ? AND passenger_id = ? LIMIT 1");
      $stmt->bind_param("ss", $driver_id, $passenger_id);
       if ($stmt->execute()) 
       {
@@ -528,7 +528,7 @@ class DB_Functions {
 
     public function undoSentRequest($employee_id, $requestee_id)
     {
-        $stmt = $this->conn->prepare("UPDATE request SET status = -1 WHERE sent_by = ? AND status = 0 AND ( passenger_id = ? OR driver_id = ? )");
+        $stmt = $this->conn->prepare("UPDATE request SET status = -1 WHERE sent_by = ? AND status = 0 AND ( passenger_id = ? OR driver_id = ? ) LIMIT 1");
         $stmt->bind_param("sss", $employee_id, $requestee_id, $requestee_id);
         if ($stmt->execute()) 
         {
@@ -542,7 +542,7 @@ class DB_Functions {
 
     public function updateDriverLatLong($driver_id,$latitude, $longitude)
     {
-        $stmt = $this->conn->prepare("UPDATE route SET d_latitude = ?, d_longitude = ? WHERE driver_id = ?");
+        $stmt = $this->conn->prepare("UPDATE route SET d_latitude = ?, d_longitude = ? WHERE driver_id = ? LIMIT 1");
         $stmt->bind_param("dds", $latitude, $longitude, $driver_id);
       if ($stmt->execute()) 
       {
@@ -556,7 +556,7 @@ class DB_Functions {
 
     public function updateLatLong($driver_id, $current_lat, $current_long)
      {
-     $stmt = $this->conn->prepare("UPDATE route SET current_latitude = ? , current_longitude = ? WHERE driver_id = ?");
+     $stmt = $this->conn->prepare("UPDATE route SET current_latitude = ? , current_longitude = ? WHERE driver_id = ? LIMIT 1");
      $stmt->bind_param("dds", $current_lat, $current_long, $driver_id);
       if ($stmt->execute()) 
       {
@@ -587,7 +587,7 @@ class DB_Functions {
 
     public function updateAccess($employee_id, $access_as)
     {
-        $stmt = $this->conn->prepare("UPDATE users SET access_as = ? WHERE employee_id = ?");
+        $stmt = $this->conn->prepare("UPDATE users SET access_as = ? WHERE employee_id = ? LIMIT 1");
         $stmt->bind_param("ds", $access_as, $employee_id);
       if ($stmt->execute()) 
       {
@@ -608,7 +608,7 @@ class DB_Functions {
 
             if($current_status==1){
 
-                $stmt = $this->conn->prepare("UPDATE request SET status = ? WHERE driver_id = ? AND passenger_id = ? AND status = 1 ");
+                $stmt = $this->conn->prepare("UPDATE request SET status = ? WHERE driver_id = ? AND passenger_id = ? AND status = 1 LIMIT 1");
                 $stmt->bind_param("dss", $new_status, $driver_id, $passenger_id);
                 if ($stmt->execute()) 
                 {
@@ -623,18 +623,18 @@ class DB_Functions {
             elseif ($current_status == 0) {
                 
                 //ACCEPTING OR REJECTING A REQUEST
-                $stmt = $this->conn->prepare("UPDATE request SET status = ? WHERE driver_id = ? AND passenger_id = ? AND status = 0 ");
+                $stmt = $this->conn->prepare("UPDATE request SET status = ? WHERE driver_id = ? AND passenger_id = ? AND status = 0 LIMIT 1");
                 $stmt->bind_param("dss", $new_status, $driver_id, $passenger_id);
                 if ($stmt->execute()) 
                 {
                     if($new_status == 1){
 
-                        $stmt1 = $this->conn->prepare("UPDATE users SET visibility_as_passenger = 0 WHERE employee_id = ? ");
+                        $stmt1 = $this->conn->prepare("UPDATE users SET visibility_as_passenger = 0 WHERE employee_id = ? LIMIT 1");
                         $stmt1->bind_param("s", $passenger_id);
                         $stmt1->execute();
                         $stmt1->close();
 
-                        $stmt2 = $this->conn->prepare("UPDATE users SET number_of_seats = number_of_seats - 1 WHERE employee_id = ? AND number_of_seats > 0");
+                        $stmt2 = $this->conn->prepare("UPDATE users SET number_of_seats = number_of_seats - 1 WHERE employee_id = ? AND number_of_seats > 0 LIMIT 1");
                         $stmt2->bind_param("s", $driver_id);
                         $stmt2->execute();
                         $stmt2->close();
@@ -663,7 +663,7 @@ class DB_Functions {
                         // }
 
                         if($result['number_of_seats'] == 0){
-                            $stmt4 = $this->conn->prepare("UPDATE users SET visibility_as_driver = 0 WHERE employee_id = ? AND number_of_seats = 0");
+                            $stmt4 = $this->conn->prepare("UPDATE users SET visibility_as_driver = 0 WHERE employee_id = ? AND number_of_seats = 0 LIMIT 1");
                         $stmt4->bind_param("s", $driver_id);
                         $stmt4->execute();
                         $stmt4->close();
@@ -672,12 +672,12 @@ class DB_Functions {
 
                     if ($new_status == -1){
                
-                        $stmt1 = $this->conn->prepare("UPDATE users SET visibility_as_passenger = 1 WHERE employee_id = ? ");
+                        $stmt1 = $this->conn->prepare("UPDATE users SET visibility_as_passenger = 1 WHERE employee_id = ? LIMIT 1");
                         $stmt1->bind_param("s", $passenger_id);
                         $stmt1->execute();
                         $stmt1->close();
                      
-                        $stmt2 = $this->conn->prepare("UPDATE users SET number_of_seats = number_of_seats + 1 AND visibility_as_driver = 1 WHERE employee_id = ? AND number_of_seats < 4");
+                        $stmt2 = $this->conn->prepare("UPDATE users SET number_of_seats = number_of_seats + 1 AND visibility_as_driver = 1 WHERE employee_id = ? AND number_of_seats < 4 LIMIT 1");
                         $stmt2->bind_param("s", $driver_id);
                         $stmt2->execute();
                         $stmt2->close();
@@ -831,13 +831,14 @@ class DB_Functions {
 public function getLatLong($address)
     {
   $curl = curl_init();
-   $region = "India";
-
-    $url = "http://maps.google.com/maps/api/geocode/json?address=$address&sensor=false&region=$region";
-
+   $Region = "India";
+ 
+    $url = "http://maps.google.com/maps/api/geocode/json?address=$address&sensor=false&Region=$Region";
+   
      curl_setopt($curl, CURLOPT_URL, $url);
       curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
        $result_from_google_api = curl_exec($curl);
+
         curl_close($curl);
          $x=json_decode($result_from_google_api,true);
 
@@ -913,7 +914,7 @@ public function getIntermediatePoints($origin, $destination)
     }
     public function updateRideStatus($id, $active_status)
     {
-        $stmt = $this->conn->prepare("UPDATE rides SET active_status = ? WHERE id = ?");
+        $stmt = $this->conn->prepare("UPDATE rides SET active_status = ? WHERE id = ? LIMIT 1");
         $stmt->bind_param("di", $active_status, $id);
       if ($stmt->execute()) 
       {
@@ -957,7 +958,7 @@ public function getIntermediatePoints($origin, $destination)
 }
 public function logOut($employee_id/*, $status*/)
     {
-        $stmt = $this->conn->prepare("UPDATE users SET status = 0 WHERE employee_id = ?");
+        $stmt = $this->conn->prepare("UPDATE users SET status = 0 WHERE employee_id = ? LIMIT 1");
         $stmt->bind_param("s",/* $status,*/ $employee_id);
       if ($stmt->execute()) 
       {
@@ -968,5 +969,86 @@ public function logOut($employee_id/*, $status*/)
          else
          return false;
     }
+     public function fetchFromRides($employee_id)
+    {
+ /* SELECT * FROM `rides` WHERE employee_id = ? AND active_status = 1 AND number_of_seats > 0 AND created_at BETWEEN '2017-11-01 00:00:00' AND '2017-11-25 23:59:59'
+ 
+ SELECT * FROM `rides` WHERE employee_id = ? AND active_status = 1 AND number_of_seats > 0 ANDcreated_at >='2012-12-25 00:00:00' AND created_at <'2012-12-26 00:00:00'*/
+        $stmt = $this->conn->prepare("SELECT * FROM rides WHERE employee_id = ? AND active_status = 1 AND number_of_seats > 0");
+        $stmt->bind_param("s", $employee_id);
+        if ($stmt->execute()) 
+        {
+            $result = $stmt->get_result()->fetch_assoc();
+            $stmt->close();
+            
+            return $result;
+         }
+         else
+            return false;
+    }
+
+    public function fetchOneStopFromRoute($driver_id)
+    {
+        $stmt = $this->conn->prepare("SELECT route FROM route WHERE driver_id = ?");
+        $stmt->bind_param("s", $driver_id);
+
+        if($stmt->execute()){
+            $routeFetched = $stmt->get_result()->fetch_assoc();
+            $stmt->close();
+            }
+
+        if($routeFetched){
+
+           $passenger_list = explode(",", $routeFetched['route']);
+           for($i = 0; $i<count($passenger_list); $i++){
+             return $passenger_list[$i];
+            }
+        }
+     }
+     public function fetchDriverFromRequest($passenger_id)
+    {
+        $stmt = $this->conn->prepare("SELECT * FROM request WHERE passenger_id = ? AND status = 1");
+        $stmt->bind_param("s", $passenger_id);
+        if ($stmt->execute()) 
+        {
+            $result = $stmt->get_result()->fetch_assoc();
+            $stmt->close();
+            return $result;
+         }
+         else
+            return false;
+    }
+    public function deleteStopFromRoute($driver,$driver_id){
+      
+      $route = explode(',', $driver['route']);
+      $route = array_splice($route, 1, count($route)-1);
+      //unset($route[0]);
+      $route = implode(',', $route);
+      $stmt = $this->conn->prepare("UPDATE route SET route = ? WHERE driver_id = ?");
+      $stmt->bind_param("ss", $route, $driver_id);
+
+      if ($stmt->execute()) {
+          $stmt->store_result();
+          $stmt->close();
+          return true;
+      }
+          else return false;
+    }
+
+    public function saveImage($image_array, $employee_id)
+    {
+        $stmt = $this->conn->prepare("INSERT INTO users (profile_image) VALUES (?) WHERE employee_id = ?");
+        $stmt->bind_param("bs", $_FILES["fileToUpload"], $employee_id);
+        if($stmt->execute()){
+          $stmt->store_result();
+          $stmt->close();
+          return true;
+        }
+        else {
+            $stmt->close();
+            echo "Database upload unsuccessful";
+            return false;
+        }
+     }
    }  
 ?>
