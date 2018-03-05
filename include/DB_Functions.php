@@ -811,10 +811,10 @@ class DB_Functions {
 
  
 
-  public function createDriverRide($employee_id, $source, $destination, $ride_name, $intermediate_points, $vehicle_type, $vehicle_number, $number_of_seats)
+  public function createDriverRide($employee_id, $source, $destination, $ride_name, $intermediate_points, $vehicle_type, $vehicle_number, $number_of_seats, $created_at)
      {
-     $stmt = $this->conn->prepare("INSERT INTO rides (employee_id, source, destination, ride_name, intermediate_points, vehicle_type, vehicle_number, number_of_seats, created_at) VALUES(?, ?, ?, ?, ?, ?, ?, ?, NOW())");
-     $stmt->bind_param("sssssisi", $employee_id, $source, $destination, $ride_name, $intermediate_points, $vehicle_type, $vehicle_number, $number_of_seats);
+     $stmt = $this->conn->prepare("INSERT INTO rides (employee_id, source, destination, ride_name, intermediate_points, vehicle_type, vehicle_number, number_of_seats, created_at) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)");
+     $stmt->bind_param("sssssisis", $employee_id, $source, $destination, $ride_name, $intermediate_points, $vehicle_type, $vehicle_number, $number_of_seats, $created_at);
       if ($stmt->execute()) 
       {
        $stmt->store_result();
