@@ -11,7 +11,7 @@
 
      $jsonArr=json_decode(file_get_contents('php://input'),true);
 	//print_r($jsonArr);
-	 if (isset($jsonArr['employee_id'])&& !empty($jsonArr['employee_id']) && isset($jsonArr['source']) && !empty($jsonArr['source']) && isset($jsonArr['destination'])&& !empty($jsonArr['destination']) && isset($jsonArr['vehicle_type'])&& !empty($jsonArr['vehicle_type']) && is_numeric($jsonArr['vehicle_type']) && isset($jsonArr['vehicle_number']) && !empty($jsonArr['vehicle_number']) && isset($jsonArr['number_of_seats']) && !empty($jsonArr['number_of_seats']) && is_numeric($jsonArr['number_of_seats']))
+	 if (isset($jsonArr['employee_id'])&& !empty($jsonArr['employee_id']) && isset($jsonArr['source']) && !empty($jsonArr['source']) && isset($jsonArr['destination'])&& !empty($jsonArr['destination']) && isset($jsonArr['vehicle_type'])&& !empty($jsonArr['vehicle_type']) && is_numeric($jsonArr['vehicle_type']) && isset($jsonArr['vehicle_number']) && !empty($jsonArr['vehicle_number']) && isset($jsonArr['number_of_seats']) && !empty($jsonArr['number_of_seats']) && is_numeric($jsonArr['number_of_seats']) && isset($jsonArr['date']) && !empty($jsonArr['date']) && isset($jsonArr['time']))
 	 {
 	 	$employee_id = $jsonArr['employee_id'];
 	     $source = $jsonArr['source'];
@@ -19,7 +19,8 @@
 		   $vehicle_type = $jsonArr['vehicle_type'];
 		    $vehicle_number = $jsonArr['vehicle_number'];
 		     $number_of_seats = $jsonArr['number_of_seats'];
-
+		      $created_at = $jsonArr['date'].' '.$jsonArr['time'];
+		     
 //CALLING MAPS API FOR GEOCODE
 		/*$source_points = $db->getLatLong($source);
 		 $source_latitude =  $source_points->results[0]->geometry->location->lat;
@@ -44,7 +45,7 @@
      $result_set = json_encode($result);
      $ride_name = $source." - ".$destination;
 
-	 if ($db->createDriverRide($employee_id, $source, $destination, $ride_name, $result_set, $vehicle_type, $vehicle_number, $number_of_seats))
+	 if ($db->createDriverRide($employee_id, $source, $destination, $ride_name, $result_set, $vehicle_type, $vehicle_number, $number_of_seats, $created_at))
 		{   
              $response["status"] = "Success";
              $response["code"] = "200";
